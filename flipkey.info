@@ -1,0 +1,5 @@
+name           = Flipkey
+description    = Allows developers to create flipkey reviews into themable objects.
+version        = 1.0-alpha
+package        = Flipkey
+core           = 6.x

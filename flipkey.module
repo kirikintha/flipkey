@@ -1,0 +1,72 @@
+<?php
+/**
+ * Define Module Constants
+ */
+define("FLIPKEY_MODULE_PATH", drupal_get_path( 'module', 'flipkey' ));
+define("FLIPKEY_BASE_URL_FEEDS", 'data.flipkey.com/feeds/reviews_remoteid');
+
+//Module Include Files.
+include_once( FLIPKEY_MODULE_PATH. '/includes/class.module.inc' );
+include_once( FLIPKEY_MODULE_PATH. '/includes/admin.module.inc' );
+
+/**
+ * Hook Menu
+ */
+function flipkey_menu() {
+  $items = array();
+  //Main admin menu.
+  $items['admin/settings/flipkey'] = array(
+    'title'             => t('FlipKey Reviews'),
+    'page callback'     => 'drupal_get_form',
+    'page arguments'    => array('_flipkey_main_settings'),
+    'type'              => MENU_NORMAL_ITEM,
+    'access arguments'  => array('administer site configuration'),
+  );
+  //Default local menu.
+  $items['admin/settings/flipkey/main'] = array(
+    'title'             => t('Main Panel'),
+    'page callback'     => 'drupal_get_form',
+    'page arguments'    => array('_flipkey_main_settings'),
+    'type'              => MENU_DEFAULT_LOCAL_TASK,
+    'access arguments'  => array('administer site configuration'),
+    'weight'            => -100,
+  );
+  return $items;
+}
+
+/**
+ * Hook Node API
+ */
+function flipkey_nodeapi( &$node, $op, $a3 = NULL, $a4 = NULL ) {
+  //Switch between nodeapi $op.
+  switch ($op) {
+    //When we load nodes, if they are in our specified node type, then you can presume that there is a key there.
+    case 'load':
+      if (in_array($node->type, variable_get('flipkey_node_types',NULL))) {
+        $property_id_key = variable_get('flipkey_property_id_key', NULL);
+        $review = flipkey::_getFlipkeyReview($node->$property_id_key);
+        if (!empty($review)) {
+          //If we have a review that has themed output, then we add it to the node object, so you can theme it at your leisure.
+          $node->flipkey_review = $review;
+        }
+      }
+    break;
+  }
+}
+
+/**
+ * Hook Theme
+ */
+function flipkey_theme() {
+  $theme = array();
+  $path  = FLIPKEY_MODULE_PATH .'/theme';
+  //This works in our theme implementation.
+  $theme['flipkey_widget'] = array (
+    'file'      => 'theme.flipkey.inc',
+    'path'      => $path,
+    'pattern'   => 'flipkey_widget__',
+    'template'  => 'flipkey-widget',
+    'arguments' => array('widget' => NULL),
+  );
+  return $theme;
+}
