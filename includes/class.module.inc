@@ -28,14 +28,13 @@ class flipkey {
    */
   public static function _getFlipkeyReview($property_id = NULL, $template = 'flipkey_widget') {
     //If we have a connection to the datasource, then we will return results.
-    $file = 'http://' .FLIPKEY_BASE_URL_FEEDS .'/_/' .variable_get('flipkey_frontdesk_id',NULL) .'/' .$property_id;
-    //kpr($file);
+    $url = 'http://' .FLIPKEY_BASE_URL_FEEDS .'/_/' .variable_get('flipkey_frontdesk_id',NULL) .'/' .$property_id;
     $headers['Accept-Charset'] = 'utf-8';
-    $response = drupal_http_request($file, $headers, $method = 'GET', $data = NULL, $retry = 0);
+    $response = drupal_http_request($url, $headers, 'GET', NULL, 1);
     $response->data = preg_replace('/&/msU', '&amp;', $response->data);
     $response->data = preg_replace('/[^(\x20-\x7F)]*/','', $response->data);
     //kpr($response);
-    if ($response->data && $response->code == 200) {
+    if ($response->data && $response->status_message == 'OK') {
       //Parse our cleaned up XML.
       $xml = @simplexml_load_string($response->data);
       $widget['reviews'] = array();

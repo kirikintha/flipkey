@@ -42,6 +42,7 @@ function flipkey_nodeapi( &$node, $op, $a3 = NULL, $a4 = NULL ) {
   switch ($op) {
     //When we load nodes, if they are in our specified node type, then you can presume that there is a key there.
     case 'load':
+      //@todo this errors out on install, no node types assigned. Set me in install file
       if (in_array($node->type, variable_get('flipkey_node_types',NULL))) {
         $property_id_key = variable_get('flipkey_property_id_key', NULL);
         $review = flipkey::_getFlipkeyReview($node->$property_id_key);
